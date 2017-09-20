@@ -5,16 +5,9 @@
 #include <iostream>  
 #include <algorithm>  
 #include <string>  
-
-#define BIGLINE1 0
-#define BIGLINE2 3
-#define BIGLINE3 6
+#define ADDR 
 
 using namespace std;
-
-
-
-
 
 class Templet {
 public:
@@ -41,9 +34,9 @@ public:
 
 	Templet* fill_line1() {
 		const string linetemp[3] = { 
-			"0 1 2", 
-			"3 4 5",
-			"6 7 8"
+			"012", 
+			"345",
+			"678"
 		};
 		fill_line(linetemp, line1_position_code, 0);
 		return this;
@@ -51,9 +44,9 @@ public:
 
 	Templet* fill_line2() {
 		const string linetemp[3] = {
-			"2 0 1",
-			"5 3 4",
-			"8 6 7"
+			"201",
+			"534",
+			"867"
 		};
 		fill_line(linetemp, line2_position_code, 3);
 		return this;
@@ -61,9 +54,9 @@ public:
 
 	Templet* fill_line3() {
 		const string linetemp[3] = {
-			"1 2 0",
-			"4 5 3",
-			"7 8 6"
+			"120",
+			"453",
+			"786"
 		};
 		fill_line(linetemp, line3_position_code, 6);
 		return this;
@@ -94,16 +87,51 @@ public:
 				}
 				cout << '\n';
 			}
+			cout << '\n';
 		}
 		cout << '\n';
 	}
 };
 
+class Template_sudoku {
+public:
+	string code = "312456789";
+	Templet* templet = new Templet();
+
+	bool change2next() {
+		if (!next_permutation(code.begin() + 1, code.end())) {
+			if (!templet->change2next()) {
+				return false;
+			}
+			else {
+				sort(code.begin() + 1, code.end());
+			}
+		}
+		return true;
+	}
+
+	void record(FILE* fout) {
+		int counter;
+		for (int i = 0; i < 8; i += 3) { // each big line
+			for (int j = 0; j < 3; j++) { // each small line
+				counter = 0;
+				for (int k = 0; k < 3; k++) { // each block
+					for (char &c : templet->line[i + k][j]) {
+						fputc(code[c - '0'], fout);
+						fputc((counter++ < 8) ? ' ' : '\n', fout);
+					}
+				}
+			}
+		}
+	}
+
+};
 
 int demo() {
 	string str;
 	cin >> str;
 	sort(str.begin(), str.end());
+	
 	while (next_permutation(str.begin(), str.end()))
 		cout << str << endl;
 	return 0;
@@ -111,21 +139,22 @@ int demo() {
 
 
 int create_sudoku(int number) {
-	Templet* templet = new Templet();
-	do {
-		templet->show();
-	} while (templet->change2next());
-
+	Template_sudoku* tsudo = new Template_sudoku();
+	int counter = 0;
+	FILE* fout = fopen("sudoku.txt", "w");
+	tsudo->record(fout);
+	while (tsudo->change2next() && ++counter < number) {
+		fputc('\n', fout);
+		tsudo->record(fout);
+	}
 
 	return 0;
 }
-
 
 int solve_sudoku(FILE* subject) {
 	cout << "solve " << subject;
 	return 0;
 }
-
 
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
@@ -168,9 +197,6 @@ int main(int argc, char* argv[]) {
 		cout << "unknown function";
 		return 0;
 	}
-
-
-
 
 	return 0;
 }
