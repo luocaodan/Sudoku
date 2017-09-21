@@ -4,11 +4,41 @@
 #include "stdafx.h"
 #include <iostream>  
 #include <algorithm>  
-#include <string>  
-#define ADDR 
+#include <string> 
+#include <vector>
+#define SIZE 9
+#define GET_BLOCKNO(ROWNO, COLUMNNO) (ROWNO / 3) * 3 + (COLUMNNO / 3)
 
 using namespace std;
 
+class Subject_sudoku;
+class Box;
+class Group {
+public:
+	int		number;
+	int		hasvalues = 0;	// --- a binary number
+	vector<Box*>	members;
+	void make_certain(Box* box);
+	void push_back(Box* new_member);
+	void initial();
+	void refresh_pos();
+	Group::Group(int number, int has = 0) {
+		this->number = number;
+		this->hasvalues = has;
+	}
+};
+int count_one(int value);
+int get_valuebit(Box* member);
+int get_valuebit(int value);
+bool is_factorial_of_two(int n);
+int get_power(int n);
+bool guess_value(Box* box, Subject_sudoku* sudoku);
+bool fill_sudoku(Subject_sudoku* sudoku);
+int solve_sudoku(FILE* subject);
+
+/*=========================
+|	    CREATE MODE       |
+=========================*/
 class Templet {
 public:
 	string line[9][3]; // line[block][row]
@@ -124,19 +154,7 @@ public:
 			}
 		}
 	}
-
 };
-
-int demo() {
-	string str;
-	cin >> str;
-	sort(str.begin(), str.end());
-	
-	while (next_permutation(str.begin(), str.end()))
-		cout << str << endl;
-	return 0;
-}
-
 
 int create_sudoku(int number) {
 	Template_sudoku* tsudo = new Template_sudoku();
@@ -151,8 +169,279 @@ int create_sudoku(int number) {
 	return 0;
 }
 
+/*=========================
+|	    SOLVE MODE        |
+=========================*/
+
+class Box {
+public:
+	Subject_sudoku* sudoku;
+	Group*	row;
+	Group*	column;
+	Group*	block;
+	int		posvalue = 1023;	// --- a binary number, 000000000 means certain value
+	int		cervalue = 0;		// --- range from 1 to 9
+
+	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int value) {
+		this->sudoku = sdk;
+		this->block = b;
+		this->row = r;
+		this->column = c;
+		if (value == 0) { // unknown
+			this->cervalue = 0;
+			this->posvalue = 1023;
+		}
+		else { // certain
+			this->cervalue = value;
+			this->posvalue = 0;
+		}
+	}
+
+	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int pos, int cer) {
+		this->sudoku = sdk;
+		this->block = b;
+		this->row = r;
+		this->column = c;
+		this->posvalue = pos;
+		this->cervalue = cer;
+	}
+
+	bool iscertain() {
+		return cervalue != 0;
+	}
+
+	void make_certain(int value) {
+		this->cervalue = value;
+		this->posvalue = 0;
+		this->row->make_certain(this);
+		this->column->make_certain(this);
+		this->block->make_certain(this);
+
+	}
+};
+
+
+class Subject_sudoku {
+public:
+	Group* rows[9];
+	Group* columns[9];
+	Group* blocks[9];
+
+	Subject_sudoku(string sudoku_str) {
+		//cout << sudoku_str << endl;
+		for (int i = 0; i < SIZE; i++) {
+			rows[i] = new Group(i);
+			columns[i] = new Group(i);
+			blocks[i] = new Group(i);
+		}
+		int counter = 0;
+		int rowno, columnno, blockno;
+		for (char &c : sudoku_str) { // -- create boxes and put into groups
+			rowno = counter / 9;
+			columnno = counter % 9;
+			blockno = GET_BLOCKNO(rowno, columnno);
+			Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], (c - '0'));
+			rows[rowno]->push_back(box);
+			columns[columnno]->push_back(box);
+			blocks[blockno]->push_back(box);
+			counter++;
+		}
+		initial();
+	}
+
+	/* [copy construction] */
+	Subject_sudoku(const Subject_sudoku& sudoku) {
+		//cout << "create" << endl;
+		for (int i = 0; i < SIZE; i++) {
+			rows[i] = new Group(i,sudoku.rows[i]->hasvalues);
+			columns[i] = new Group(i, sudoku.columns[i]->hasvalues);
+			blocks[i] = new Group(i, sudoku.blocks[i]->hasvalues);
+		}
+		int counter = 0;
+		int blockno;
+		for (int rowno = 0; rowno < SIZE; rowno++) {
+			for (int columnno = 0; columnno < SIZE; columnno++) {
+				blockno = GET_BLOCKNO(rowno, columnno);
+				Box* oldbox = sudoku.getbox(rowno, columnno);
+				Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], oldbox->posvalue, oldbox->cervalue);
+				rows[rowno]->push_back(box);
+				columns[columnno]->push_back(box);
+				blocks[blockno]->push_back(box);
+				counter++;
+			}
+		}
+	}
+
+	Box* getbox(int rowno, int columnno) const {
+		return this->rows[rowno]->members[columnno];
+	}
+
+	Box* get_minpos_box() const {
+		int minpos = SIZE + 1;
+		int pos;
+		Box* minbox = NULL;
+		Box* box;
+		for (int i = 0; i < SIZE; i++) {
+			for (int j = 0; j < SIZE; j++) {
+				box = getbox(i, j);
+				if (!box->iscertain()) {
+					pos = count_one(box->posvalue);
+					if (pos < minpos) {
+						minpos = pos;
+						minbox = box;
+					}
+				}
+			}
+		}	
+		return minbox;
+	}
+
+	void initial() {
+		for (int i = 0; i < SIZE; i++) {
+			rows[i]->initial();
+			columns[i]->initial();
+			blocks[i]->initial();
+		}
+	}
+
+	void show() {
+		for (int i = 0; i < SIZE; i++) {
+			cout << getbox(i, 0)->cervalue;
+			for (int j = 1; j < SIZE; j++) {
+				cout << " " << getbox(i, j)->cervalue;
+			}
+			cout << "\n";
+		}
+	}
+};
+
+void Group::make_certain(Box* box) {
+	hasvalues |= get_valuebit(box);
+	refresh_pos();
+	int posvalue_counter[SIZE];
+	for (int i = 0; i < SIZE; i++) {
+		posvalue_counter[i] = 0;
+	}
+	int bit = 1;
+	for (int i = 0; i < SIZE; i++) { // -- each member
+		if (!members[i]->iscertain()) {
+			for (int j = 0; j < SIZE; j++) { // -- each bit
+				posvalue_counter[0] += (members[i]->posvalue & bit);
+				bit = bit << 1;
+			}
+		}
+	}
+	for (int i = 0; i < SIZE; i++) {
+		if (posvalue_counter[i] == 1) {
+			for (int j = 0; j < SIZE; j++) {
+				if (members[j]->posvalue & (bit << i)) {
+					members[j]->make_certain(i + 1);
+					break;
+				}
+			}
+		}
+	}
+}
+
+void Group::push_back(Box* new_member) {
+	this->members.push_back(new_member);
+}
+
+void Group::initial() {
+	/* collect values */
+	for (size_t i = 0; i < SIZE; i++) {
+		if (members[i]->iscertain()) {
+			hasvalues |= get_valuebit(members[i]); // -- add cervalue to hasvalue
+		}
+	}
+	/* initial members' posvalue */
+	refresh_pos();
+}
+
+void Group::refresh_pos() {
+	for (size_t i = 0; i < SIZE; i++) {
+		members[i]->posvalue &= (~hasvalues); // -- remove impossible value bit
+	}
+}
+
+int count_one(int value) {
+	int counter = 0;
+	while (value) {
+		value &= value - 1;
+		counter++;
+	}
+	return counter;
+}
+
+int get_valuebit(Box* member) {
+	return (1 << ((member->cervalue) - 1));
+}
+int get_valuebit(int value) {
+	return (1 << value);
+}
+
+bool is_factorial_of_two(int n) {
+	return n > 0 ? (n & (n - 1)) == 0 : false;
+}
+
+int get_power(int n) {
+	int counter = 0;
+	while (n > 1) {
+		n /= 2;
+		counter++;
+	}
+	return counter;
+}
+
+bool guess_value(Box* box, Subject_sudoku* sudoku) {
+	//cout << "guess" << endl;
+	int rowno = box->row->number;
+	int columnno = box->column->number;
+	for (int i = 0; i < SIZE; i++) {
+		if (box->posvalue & get_valuebit(i)) { // -- value i+1 is possible
+			Subject_sudoku* new_sudoku = new Subject_sudoku(*sudoku);
+			new_sudoku->getbox(rowno, columnno)->make_certain(i+1);
+			if (fill_sudoku(new_sudoku)) {
+				return true;
+			}
+			delete(new_sudoku);
+		}
+	}
+}
+
+bool fill_sudoku(Subject_sudoku* sudoku) { // -- succeed(true) or failed(false)
+	Box* box;
+	
+	box = sudoku->get_minpos_box();
+	
+	if (box == NULL) {
+		sudoku->show();
+		return true;
+	}
+	//cout << box->row->number << ',' << box->column->number << endl;
+	return guess_value(box, sudoku);
+}
+
 int solve_sudoku(FILE* subject) {
-	cout << "solve " << subject;
+	Subject_sudoku* sudoku;
+	string code = "";
+	int number_counter = 0;
+	char c;
+
+	while ((c = fgetc(subject)) != EOF) {
+		if (isdigit(c)) {
+			code += c;
+			number_counter++;
+		}
+		if (number_counter == SIZE * SIZE) {
+			number_counter = 0;
+			sudoku = new Subject_sudoku(code);
+			fill_sudoku(sudoku);
+			delete(sudoku);
+			cout << '\n';
+			code = "";
+		}
+	}
 	return 0;
 }
 
@@ -197,7 +486,5 @@ int main(int argc, char* argv[]) {
 		cout << "unknown function";
 		return 0;
 	}
-
 	return 0;
 }
-
