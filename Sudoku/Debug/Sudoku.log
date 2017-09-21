@@ -4,6 +4,6 @@ c:\users\65486\source\repos\sudoku\sudoku\stdafx.h : warning C4819: 该文件包
 c:\users\65486\source\repos\sudoku\sudoku\targetver.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
   Sudoku.cpp
 c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp(410): warning C4715: “guess_value”: 不是所有的控件路径都返回值
+c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp(412): warning C4715: “guess_value”: 不是所有的控件路径都返回值
   Sudoku.vcxproj -> C:\Users\65486\source\repos\Sudoku\Debug\Sudoku.exe
   Sudoku.vcxproj -> C:\Users\65486\source\repos\Sudoku\Debug\Sudoku.pdb (Partial PDB)

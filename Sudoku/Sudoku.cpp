@@ -32,8 +32,8 @@ int get_valuebit(Box* member);
 int get_valuebit(int value);
 bool is_factorial_of_two(int n);
 int get_power(int n);
-bool guess_value(Box* box, Subject_sudoku* sudoku);
-bool fill_sudoku(Subject_sudoku* sudoku);
+bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout);
+bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout);
 int solve_sudoku(FILE* subject);
 
 /*=========================
@@ -216,7 +216,6 @@ public:
 		this->row->make_certain(this);
 		this->column->make_certain(this);
 		this->block->make_certain(this);
-
 	}
 };
 
@@ -304,14 +303,16 @@ public:
 		}
 	}
 
-	void show() {
+	void show(FILE* fout) {
 		for (int i = 0; i < SIZE; i++) {
-			cout << getbox(i, 0)->cervalue;
+			fputc(getbox(i, 0)->cervalue + '0', fout);
 			for (int j = 1; j < SIZE; j++) {
-				cout << " " << getbox(i, j)->cervalue;
+				fputc(' ', fout);
+				fputc(getbox(i, j)->cervalue + '0', fout);
 			}
-			cout << "\n";
+			fputc('\n', fout);
 		}
+		fputc('\n', fout);
 	}
 };
 
@@ -393,7 +394,7 @@ int get_power(int n) {
 	return counter;
 }
 
-bool guess_value(Box* box, Subject_sudoku* sudoku) {
+bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout) {
 	//cout << "guess" << endl;
 	int rowno = box->row->number;
 	int columnno = box->column->number;
@@ -401,7 +402,7 @@ bool guess_value(Box* box, Subject_sudoku* sudoku) {
 		if (box->posvalue & get_valuebit(i)) { // -- value i+1 is possible
 			Subject_sudoku* new_sudoku = new Subject_sudoku(*sudoku);
 			new_sudoku->getbox(rowno, columnno)->make_certain(i+1);
-			if (fill_sudoku(new_sudoku)) {
+			if (fill_sudoku(new_sudoku, fout)) {
 				return true;
 			}
 			delete(new_sudoku);
@@ -409,17 +410,17 @@ bool guess_value(Box* box, Subject_sudoku* sudoku) {
 	}
 }
 
-bool fill_sudoku(Subject_sudoku* sudoku) { // -- succeed(true) or failed(false)
+bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout) { // -- succeed(true) or failed(false)
 	Box* box;
 	
 	box = sudoku->get_minpos_box();
 	
 	if (box == NULL) {
-		sudoku->show();
+		sudoku->show(fout);
 		return true;
 	}
 	//cout << box->row->number << ',' << box->column->number << endl;
-	return guess_value(box, sudoku);
+	return guess_value(box, sudoku, fout);
 }
 
 int solve_sudoku(FILE* subject) {
@@ -427,6 +428,9 @@ int solve_sudoku(FILE* subject) {
 	string code = "";
 	int number_counter = 0;
 	char c;
+
+	FILE* fout;
+	fout = fopen("sudoku.txt", "w");
 
 	while ((c = fgetc(subject)) != EOF) {
 		if (isdigit(c)) {
@@ -436,9 +440,8 @@ int solve_sudoku(FILE* subject) {
 		if (number_counter == SIZE * SIZE) {
 			number_counter = 0;
 			sudoku = new Subject_sudoku(code);
-			fill_sudoku(sudoku);
+			fill_sudoku(sudoku, fout);
 			delete(sudoku);
-			cout << '\n';
 			code = "";
 		}
 	}
