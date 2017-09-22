@@ -91,8 +91,6 @@ public:
 int count_one(int value);
 int get_valuebit(Box* member);
 int get_valuebit(int value);
-bool is_factorial_of_two(int n);
-int get_power(int n);
 bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout);
 bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout);
 int solve_sudoku(FILE* subject);

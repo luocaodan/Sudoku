@@ -2,56 +2,16 @@
 #include "CppUnitTest.h"
 #include "../Sudoku/Sudoku.h"
 #include "../Sudoku/Sudoku.cpp"
+#include <iostream>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+using namespace std;
 
 namespace SudokuTest
 {		
 	TEST_CLASS(UnitTest1)
 	{
 	public:
-		
-		TEST_METHOD(CreatingMode) {
-			FILE* fin = fopen("C:\\Users\\65486\\Desktop\\subject.txt", "r");
-			solve_sudoku(fin);
-			FILE* fout = fopen("sudoku.txt", "r");
-
-			int row_record[9] = { 0 }; // must be 511
-			int column_record[9] = { 0 };
-			int block_record[9] = { 0 };
-
-			char c;
-			int bit;
-			
-			while (true) {
-				/* store box */
-				for (int i = 0; i < 9; i++) {
-					for (int j = 0; j < 9; j++) {
-						for (c = fgetc(fout); !isdigit(c) && c != EOF; c = fgetc(fout));
-						if (c == EOF) {
-							return;
-						}
-						else {
-							bit = (1 << (c - '1'));
-							row_record[i] |= bit;
-							column_record[j] |= bit;
-							block_record[(i / 3) * 3 + j / 3] |= bit;
-						}
-					}
-				}
-
-				/* judge & initial*/
-				for (int i = 0; i < 9; i++) {
-					Assert::AreEqual(511, row_record[i]);
-					Assert::AreEqual(511, column_record[i]);
-					Assert::AreEqual(511, block_record[i]);
-					row_record[i] = 0;
-					column_record[i] = 0;
-					block_record[i] = 0;
-				}
-			}
-		}
-
 
 		typedef struct node{
 			bool isbottom;
@@ -76,13 +36,23 @@ namespace SudokuTest
 				(*p) = create_treenode(depth, sudoku);
 			}
 			else {
-				Assert::AreNotEqual(*sudoku, *((*p)->sudoku));
+				if ((*((*p)->sudoku)).length() > 0) {
+					Assert::AreNotEqual(*sudoku, *((*p)->sudoku));
+					add_sudoku_to_tree(depth + 1, &((*p)->ptrs[(*((*p)->sudoku))[depth + 1] - '1']), ((*p)->sudoku));
+					*((*p)->sudoku) = "";
+				}
 				add_sudoku_to_tree(depth + 1, &((*p)->ptrs[(*sudoku)[depth + 1] - '1']), sudoku);
 			}
 		}
 
-		TEST_METHOD(SolvingMode) {
-			create_sudoku(1'000'000);
+		void test_c(char para[], int number) {
+			char* argv[3] = {
+				"Sudoku.exe",
+				"-c",
+				para
+			};
+			main(3, argv);
+
 			FILE* fout = fopen("sudoku.txt", "r");
 
 			int row_record[9] = { 0 }; // must be 511
@@ -94,17 +64,22 @@ namespace SudokuTest
 
 			string* sudoku;
 			Treenode* root = create_treenode(-1, new string(""));
+			int counter = 0;
 
 			while (true) {
-				/* store box */
+				// store box 
 				sudoku = new string();
 				for (int i = 0; i < 9; i++) {
 					for (int j = 0; j < 9; j++) {
 						for (c = fgetc(fout); !isdigit(c) && c != EOF; c = fgetc(fout));
 						if (c == EOF) {
+							if (number != -1) {
+								Assert::AreEqual(number, counter);
+							}	
 							return;
 						}
 						else {
+							//cout << 1;
 							(*sudoku) += c;
 							bit = (1 << (c - '1'));
 							row_record[i] |= bit;
@@ -114,7 +89,7 @@ namespace SudokuTest
 					}
 				}
 
-				/* judge & initial*/
+				// judge & initial
 				for (int i = 0; i < 9; i++) {
 					Assert::AreEqual(511, row_record[i]);
 					Assert::AreEqual(511, column_record[i]);
@@ -124,7 +99,71 @@ namespace SudokuTest
 					block_record[i] = 0;
 				}
 				add_sudoku_to_tree(-1, &root, sudoku);
+				counter++;
 			}
+
+			fclose(fout);
+		}
+
+		void test_s(char path[]) {
+			/*char* argv[3] = {
+				"Sudoku.exe",
+				"-s",
+				"C:\\Users\\65486\\Desktop\\subject.txt"
+			};
+			main(3, argv);*/
+			solve_sudoku(fopen("C:\\Users\\65486\\Desktop\\subject.txt", "r"));
+
+			FILE* fout = std::fopen("sudoku.txt", "r");
+
+			int row_record[9] = { 0 }; // must be 511
+			int column_record[9] = { 0 };
+			int block_record[9] = { 0 };
+
+			char c;
+			int bit;
+
+			while (true) {
+				// store box 
+				for (int i = 0; i < 9; i++) {
+					for (int j = 0; j < 9; j++) {
+						for (c = fgetc(fout); !isdigit(c) && c != EOF; c = fgetc(fout));
+						if (c == EOF) {
+							return;
+						}
+						else {
+							bit = (1 << (c - '1'));
+							row_record[i] |= bit;
+							column_record[j] |= bit;
+							block_record[(i / 3) * 3 + j / 3] |= bit;
+						}
+					}
+				}
+
+				// judge & initial
+				for (int i = 0; i < 9; i++) {
+					Assert::AreEqual(511, row_record[i]);
+					Assert::AreEqual(511, column_record[i]);
+					Assert::AreEqual(511, block_record[i]);
+					row_record[i] = 0;
+					column_record[i] = 0;
+					block_record[i] = 0;
+				}
+			}
+
+			fclose(fout);
+		}
+
+		TEST_METHOD(c1) {
+			test_c("1", 1);
+		}
+
+		TEST_METHOD(c2) {
+			test_c("abc", -1);
+		}
+
+		TEST_METHOD(s1) {
+			test_s("C:\\Users\\65486\\Desktop\\subject.txt");
 		}
 	};
 }

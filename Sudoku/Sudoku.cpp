@@ -127,7 +127,7 @@ int create_sudoku(int number) {
 		fputc('\n', fout);
 		tsudo->record(fout);
 	}
-
+	fclose(fout);
 	return 0;
 }
 
@@ -269,19 +269,26 @@ Group::Group(int number, int has) {
 void Group::make_certain(Box* box) {
 	hasvalues |= get_valuebit(box);
 	refresh_pos();
-	int posvalue_counter[SIZE];
+
+	/* it might cause same numbers, because function make_certain could 
+	be execused before posibilities(rows, columns, blocks) being refreshed */
+
+	/*int posvalue_counter[SIZE];
 	for (int i = 0; i < SIZE; i++) {
+		members[i]->posvalue &= (~hasvalues);
 		posvalue_counter[i] = 0;
 	}
 	int bit = 1;
 	for (int i = 0; i < SIZE; i++) { // -- each member
 		if (!members[i]->iscertain()) {
+			bit = 1;
 			for (int j = 0; j < SIZE; j++) { // -- each bit
-				posvalue_counter[0] += (members[i]->posvalue & bit);
+				posvalue_counter[j] += ((members[i]->posvalue & bit) != 0);
 				bit = bit << 1;
 			}
 		}
 	}
+	bit = 1;
 	for (int i = 0; i < SIZE; i++) {
 		if (posvalue_counter[i] == 1) {
 			for (int j = 0; j < SIZE; j++) {
@@ -291,7 +298,7 @@ void Group::make_certain(Box* box) {
 				}
 			}
 		}
-	}
+	}*/
 }
 
 void Group::push_back(Box* new_member) {
@@ -329,19 +336,6 @@ int get_valuebit(Box* member) {
 }
 int get_valuebit(int value) {
 	return (1 << value);
-}
-
-bool is_factorial_of_two(int n) {
-	return n > 0 ? (n & (n - 1)) == 0 : false;
-}
-
-int get_power(int n) {
-	int counter = 0;
-	while (n > 1) {
-		n /= 2;
-		counter++;
-	}
-	return counter;
 }
 
 bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout) {
@@ -391,11 +385,14 @@ int solve_sudoku(FILE* subject) {
 		if (number_counter == SIZE * SIZE) {
 			number_counter = 0;
 			sudoku = new Subject_sudoku(code);
-			fill_sudoku(sudoku, fout);
+			if (!fill_sudoku(sudoku, fout)) {
+				cout << "no solutions" << endl;
+			};
 			delete(sudoku);
 			code = "";
 		}
 	}
+	fclose(fout);
 	return 0;
 }
 
@@ -433,11 +430,12 @@ int main(int argc, char* argv[]) {
 		FILE* subject;
 		if ((subject = fopen(para, "r")) != NULL) {
 			solve_sudoku(subject);
+			fclose(subject);
 		}
 		else {
 			cout << "cannot open the file";
-			return 0;
-		}
+			return 0; 
+		} 
 	}
 	else {
 		cout << "unknown function";

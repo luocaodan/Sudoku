@@ -1,0 +1,24 @@
+﻿  unittest1.cpp
+c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\65486\source\repos\sudoku\sudoku\stdafx.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\65486\source\repos\sudoku\sudoku\targetver.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp(124): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp(378): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+c:\users\65486\source\repos\sudoku\sudoku\sudoku.cpp(431): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+c:\users\65486\source\repos\sudoku\sudokutest\unittest1.cpp(56): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+c:\users\65486\source\repos\sudoku\sudokutest\unittest1.cpp(115): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+c:\users\65486\source\repos\sudoku\sudokutest\unittest1.cpp(117): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.15063.0\ucrt\stdio.h(207): note: 参见“fopen”的声明
+LINK : warning LNK4075: 忽略“/INCREMENTAL”(由于“/LTCG”规范)
+    正在创建库 C:\Users\65486\source\repos\Sudoku\x64\Release\SudokuTest.lib 和对象 C:\Users\65486\source\repos\Sudoku\x64\Release\SudokuTest.exp
+  正在生成代码
+  2 of 345 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  已完成代码的生成
+  SudokuTest.vcxproj -> C:\Users\65486\source\repos\Sudoku\x64\Release\SudokuTest.dll
