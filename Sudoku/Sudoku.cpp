@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+#include "Sudoku.h"
+
 #include <iostream>  
 #include <algorithm>  
 #include <string> 
