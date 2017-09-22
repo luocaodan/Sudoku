@@ -11,150 +11,110 @@
 
 using namespace std;
 
-class Subject_sudoku;
-class Box;
-class Group {
-public:
-	int		number;
-	int		hasvalues = 0;	// --- a binary number
-	vector<Box*>	members;
-	void make_certain(Box* box);
-	void push_back(Box* new_member);
-	void initial();
-	void refresh_pos();
-	Group::Group(int number, int has = 0) {
-		this->number = number;
-		this->hasvalues = has;
-	}
-};
-int count_one(int value);
-int get_valuebit(Box* member);
-int get_valuebit(int value);
-bool is_factorial_of_two(int n);
-int get_power(int n);
-bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout);
-bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout);
-int solve_sudoku(FILE* subject);
-
 /*=========================
 |	    CREATE MODE       |
 =========================*/
-class Templet {
-public:
-	string line[9][3]; // line[block][row]
+Templet::Templet() {
+	fill_line1();
+	fill_line2();
+	fill_line3();
+}
 
-	const string line1_position_code = "012"; // not change
-	string line2_position_code = "012"; // 3! = 6 types
-	string line3_position_code = "012"; // 3! = 6 types
-
-	Templet() {
-		fill_line1();
-		fill_line2();
-		fill_line3();
-	}
-
-	void fill_line(const string linetemp[], const string code, const int blockbegin) {
-		int blockno = blockbegin;
-		for (int i = 0; i < 3; i++, blockno++) { // each block
-			for (int j = 0; j < 3; j++) { // each line, begin with linetemp1
-				line[blockno][(code[i] + j) % 3] = linetemp[j];
-			}
+void Templet::fill_line(const string linetemp[], const string code, const int blockbegin) {
+	int blockno = blockbegin;
+	for (int i = 0; i < 3; i++, blockno++) { // each block
+		for (int j = 0; j < 3; j++) { // each line, begin with linetemp1
+			line[blockno][(code[i] + j) % 3] = linetemp[j];
 		}
 	}
+}
 
-	Templet* fill_line1() {
-		const string linetemp[3] = { 
-			"012", 
-			"345",
-			"678"
-		};
-		fill_line(linetemp, line1_position_code, 0);
-		return this;
-	}
+Templet* Templet::fill_line1() {
+	const string linetemp[3] = { 
+		"012", 
+		"345",
+		"678"
+	};
+	fill_line(linetemp, line1_position_code, 0);
+	return this;
+}
 
-	Templet* fill_line2() {
-		const string linetemp[3] = {
-			"201",
-			"534",
-			"867"
-		};
-		fill_line(linetemp, line2_position_code, 3);
-		return this;
-	}
+Templet* Templet::fill_line2() {
+	const string linetemp[3] = {
+		"201",
+		"534",
+		"867"
+	};
+	fill_line(linetemp, line2_position_code, 3);
+	return this;
+}
 
-	Templet* fill_line3() {
-		const string linetemp[3] = {
-			"120",
-			"453",
-			"786"
-		};
-		fill_line(linetemp, line3_position_code, 6);
-		return this;
-	}
+Templet* Templet::fill_line3() {
+	const string linetemp[3] = {
+		"120",
+		"453",
+		"786"
+	};
+	fill_line(linetemp, line3_position_code, 6);
+	return this;
+}
 
-	bool change2next() {
-		if (!next_permutation(line2_position_code.begin(), line2_position_code.end())) {
-			if (!next_permutation(line3_position_code.begin(), line3_position_code.end())) {
-				return false;
-			}
-			else {
-				sort(line2_position_code.begin(), line2_position_code.end()); // initial line2 code
-				fill_line2();
-				fill_line3();
-			}
+bool Templet::change2next() {
+	if (!next_permutation(line2_position_code.begin(), line2_position_code.end())) {
+		if (!next_permutation(line3_position_code.begin(), line3_position_code.end())) {
+			return false;
 		}
 		else {
+			sort(line2_position_code.begin(), line2_position_code.end()); // initial line2 code
 			fill_line2();
+			fill_line3();
 		}
-		return true;
 	}
+	else {
+		fill_line2();
+	}
+	return true;
+}
 
-	void show() {
-		for (int i = 0; i < 8; i += 3) { // each big line
-			for (int j = 0; j < 3; j++) { // each small line
-				for (int k = 0; k < 3; k++) { // each block
-					cout << line[i + k][j] << ' ';
-				}
-				cout << '\n';
+void Templet::show() {
+	for (int i = 0; i < 8; i += 3) { // each big line
+		for (int j = 0; j < 3; j++) { // each small line
+			for (int k = 0; k < 3; k++) { // each block
+				cout << line[i + k][j] << ' ';
 			}
 			cout << '\n';
 		}
 		cout << '\n';
 	}
-};
+	cout << '\n';
+}
 
-class Template_sudoku {
-public:
-	string code = "312456789";
-	Templet* templet = new Templet();
-
-	bool change2next() {
-		if (!next_permutation(code.begin() + 1, code.end())) {
-			if (!templet->change2next()) {
-				return false;
-			}
-			else {
-				sort(code.begin() + 1, code.end());
-			}
+bool Template_sudoku::change2next() {
+	if (!next_permutation(code.begin() + 1, code.end())) {
+		if (!templet->change2next()) {
+			return false;
 		}
-		return true;
+		else {
+			sort(code.begin() + 1, code.end());
+		}
 	}
+	return true;
+}
 
-	void record(FILE* fout) {
-		int counter;
-		for (int i = 0; i < 8; i += 3) { // each big line
-			for (int j = 0; j < 3; j++) { // each small line
-				counter = 0;
-				for (int k = 0; k < 3; k++) { // each block
-					for (char &c : templet->line[i + k][j]) {
-						fputc(code[c - '0'], fout);
-						fputc((counter++ < 8) ? ' ' : '\n', fout);
-					}
+void Template_sudoku::record(FILE* fout) {
+	int counter;
+	for (int i = 0; i < 8; i += 3) { // each big line
+		for (int j = 0; j < 3; j++) { // each small line
+			counter = 0;
+			for (int k = 0; k < 3; k++) { // each block
+				for (char &c : templet->line[i + k][j]) {
+					fputc(code[c - '0'], fout);
+					fputc((counter++ < 8) ? ' ' : '\n', fout);
 				}
 			}
 		}
 	}
-};
+}
 
 int create_sudoku(int number) {
 	Template_sudoku* tsudo = new Template_sudoku();
@@ -172,149 +132,137 @@ int create_sudoku(int number) {
 /*=========================
 |	    SOLVE MODE        |
 =========================*/
-
-class Box {
-public:
-	Subject_sudoku* sudoku;
-	Group*	row;
-	Group*	column;
-	Group*	block;
-	int		posvalue = 1023;	// --- a binary number, 000000000 means certain value
-	int		cervalue = 0;		// --- range from 1 to 9
-
-	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int value) {
-		this->sudoku = sdk;
-		this->block = b;
-		this->row = r;
-		this->column = c;
-		if (value == 0) { // unknown
-			this->cervalue = 0;
-			this->posvalue = 1023;
-		}
-		else { // certain
-			this->cervalue = value;
-			this->posvalue = 0;
-		}
+Box::Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int value) {
+	this->sudoku = sdk;
+	this->block = b;
+	this->row = r;
+	this->column = c;
+	if (value == 0) { // unknown
+		this->cervalue = 0;
+		this->posvalue = 511;
 	}
-
-	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int pos, int cer) {
-		this->sudoku = sdk;
-		this->block = b;
-		this->row = r;
-		this->column = c;
-		this->posvalue = pos;
-		this->cervalue = cer;
-	}
-
-	bool iscertain() {
-		return cervalue != 0;
-	}
-
-	void make_certain(int value) {
+	else { // certain
 		this->cervalue = value;
 		this->posvalue = 0;
-		this->row->make_certain(this);
-		this->column->make_certain(this);
-		this->block->make_certain(this);
 	}
-};
+}
 
+Box::Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int pos, int cer) {
+	this->sudoku = sdk;
+	this->block = b;
+	this->row = r;
+	this->column = c;
+	this->posvalue = pos;
+	this->cervalue = cer;
+}
 
-class Subject_sudoku {
-public:
-	Group* rows[9];
-	Group* columns[9];
-	Group* blocks[9];
+bool Box::iscertain() {
+	return cervalue != 0;
+}
 
-	Subject_sudoku(string sudoku_str) {
-		//cout << sudoku_str << endl;
-		for (int i = 0; i < SIZE; i++) {
-			rows[i] = new Group(i);
-			columns[i] = new Group(i);
-			blocks[i] = new Group(i);
-		}
-		int counter = 0;
-		int rowno, columnno, blockno;
-		for (char &c : sudoku_str) { // -- create boxes and put into groups
-			rowno = counter / 9;
-			columnno = counter % 9;
+void Box::make_certain(int value) {
+	this->cervalue = value;
+	this->posvalue = 0;
+	this->row->make_certain(this);
+	this->column->make_certain(this);
+	this->block->make_certain(this);
+}
+
+Subject_sudoku::Subject_sudoku(string sudoku_str) {
+	//cout << sudoku_str << endl;
+	for (int i = 0; i < SIZE; i++) {
+		rows[i] = new Group(i);
+		columns[i] = new Group(i);
+		blocks[i] = new Group(i);
+	}
+	int counter = 0;
+	int rowno, columnno, blockno;
+	for (char &c : sudoku_str) { // -- create boxes and put into groups
+		rowno = counter / 9;
+		columnno = counter % 9;
+		blockno = GET_BLOCKNO(rowno, columnno);
+		Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], (c - '0'));
+		rows[rowno]->push_back(box);
+		columns[columnno]->push_back(box);
+		blocks[blockno]->push_back(box);
+		counter++;
+	}
+	initial();
+}
+
+/* [copy construction] */
+Subject_sudoku::Subject_sudoku(const Subject_sudoku& sudoku) {
+	//cout << "create" << endl;
+	for (int i = 0; i < SIZE; i++) {
+		rows[i] = new Group(i,sudoku.rows[i]->hasvalues);
+		columns[i] = new Group(i, sudoku.columns[i]->hasvalues);
+		blocks[i] = new Group(i, sudoku.blocks[i]->hasvalues);
+	}
+	int counter = 0;
+	int blockno;
+	for (int rowno = 0; rowno < SIZE; rowno++) {
+		for (int columnno = 0; columnno < SIZE; columnno++) {
 			blockno = GET_BLOCKNO(rowno, columnno);
-			Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], (c - '0'));
+			Box* oldbox = sudoku.getbox(rowno, columnno);
+			Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], oldbox->posvalue, oldbox->cervalue);
 			rows[rowno]->push_back(box);
 			columns[columnno]->push_back(box);
 			blocks[blockno]->push_back(box);
 			counter++;
 		}
-		initial();
 	}
+}
 
-	/* [copy construction] */
-	Subject_sudoku(const Subject_sudoku& sudoku) {
-		//cout << "create" << endl;
-		for (int i = 0; i < SIZE; i++) {
-			rows[i] = new Group(i,sudoku.rows[i]->hasvalues);
-			columns[i] = new Group(i, sudoku.columns[i]->hasvalues);
-			blocks[i] = new Group(i, sudoku.blocks[i]->hasvalues);
-		}
-		int counter = 0;
-		int blockno;
-		for (int rowno = 0; rowno < SIZE; rowno++) {
-			for (int columnno = 0; columnno < SIZE; columnno++) {
-				blockno = GET_BLOCKNO(rowno, columnno);
-				Box* oldbox = sudoku.getbox(rowno, columnno);
-				Box* box = new Box(this, rows[rowno], columns[columnno], blocks[blockno], oldbox->posvalue, oldbox->cervalue);
-				rows[rowno]->push_back(box);
-				columns[columnno]->push_back(box);
-				blocks[blockno]->push_back(box);
-				counter++;
-			}
-		}
-	}
+Box* Subject_sudoku::getbox(int rowno, int columnno) const {
+	return this->rows[rowno]->members[columnno];
+}
 
-	Box* getbox(int rowno, int columnno) const {
-		return this->rows[rowno]->members[columnno];
-	}
-
-	Box* get_minpos_box() const {
-		int minpos = SIZE + 1;
-		int pos;
-		Box* minbox = NULL;
-		Box* box;
-		for (int i = 0; i < SIZE; i++) {
-			for (int j = 0; j < SIZE; j++) {
-				box = getbox(i, j);
-				if (!box->iscertain()) {
-					pos = count_one(box->posvalue);
-					if (pos < minpos) {
-						minpos = pos;
-						minbox = box;
-					}
+Box* Subject_sudoku::get_minpos_box() const {
+	int minpos = SIZE + 1;
+	int pos;
+	Box* minbox = NULL;
+	Box* box;
+	for (int i = 0; i < SIZE; i++) {
+		for (int j = 0; j < SIZE; j++) {
+			box = getbox(i, j);
+			if (!box->iscertain()) {
+				pos = count_one(box->posvalue);
+				//cout << pos << endl;
+				if (pos < minpos) {
+					minpos = pos;
+					minbox = box;
 				}
 			}
-		}	
-		return minbox;
-	}
-
-	void initial() {
-		for (int i = 0; i < SIZE; i++) {
-			rows[i]->initial();
-			columns[i]->initial();
-			blocks[i]->initial();
 		}
-	}
+	}	
+	return minbox;
+}
 
-	void show(FILE* fout) {
-		for (int i = 0; i < SIZE; i++) {
-			fputc(getbox(i, 0)->cervalue + '0', fout);
-			for (int j = 1; j < SIZE; j++) {
-				fputc(' ', fout);
-				fputc(getbox(i, j)->cervalue + '0', fout);
-			}
-			fputc('\n', fout);
+void Subject_sudoku::initial() {
+	for (int i = 0; i < SIZE; i++) {
+		rows[i]->initial();
+		columns[i]->initial();
+		blocks[i]->initial();
+	}
+}
+
+void Subject_sudoku::show(FILE* fout) {
+	for (int i = 0; i < SIZE; i++) {
+		fputc(getbox(i, 0)->cervalue + '0', fout);
+		for (int j = 1; j < SIZE; j++) {
+			fputc(' ', fout);
+			fputc(getbox(i, j)->cervalue + '0', fout);
 		}
 		fputc('\n', fout);
 	}
-};
+	fputc('\n', fout);
+}
+
+
+Group::Group(int number, int has) {
+	this->number = number;
+	this->hasvalues = has;
+}
 
 void Group::make_certain(Box* box) {
 	hasvalues |= get_valuebit(box);
@@ -408,6 +356,7 @@ bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout) {
 			delete(new_sudoku);
 		}
 	}
+	return false;
 }
 
 bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout) { // -- succeed(true) or failed(false)
@@ -448,6 +397,9 @@ int solve_sudoku(FILE* subject) {
 	return 0;
 }
 
+/*=========================
+|	     ENTRANCE         |
+=========================*/
 int main(int argc, char* argv[]) {
 	if (argc != 3) {
 		cout << "invalid parameter number";
