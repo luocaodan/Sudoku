@@ -154,16 +154,40 @@ namespace SudokuTest
 			fclose(fout);
 		}
 
-		TEST_METHOD(c1) {
+		TEST_METHOD(c0) {
 			test_c("1", 1);
 		}
 
+		TEST_METHOD(c1) {
+			test_c("10", 10);
+		}
+
 		TEST_METHOD(c2) {
-			test_c("abc", -1);
+			test_c("100", 100);
+		}
+
+		TEST_METHOD(c3) {
+			test_c("1000", 1000);
+		}
+
+		TEST_METHOD(c4) {
+			test_c("10000", 10000);
+		}
+
+		TEST_METHOD(c5) {
+			test_c("100000", 100000);
+		}
+
+		TEST_METHOD(c6) {
+			test_c("1000000", 1000000);
+		}
+
+		TEST_METHOD(c_zero) {
+			test_c("000005", 5);
 		}
 
 		TEST_METHOD(s1) {
-			test_s("C:\\Users\\65486\\Desktop\\subject.txt");
+			test_s("subject.txt");
 		}
 	};
 }

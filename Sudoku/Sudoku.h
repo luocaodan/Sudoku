@@ -15,10 +15,46 @@ int main(int argc, char* argv[]);
 
 class Templet {
 public:
+	/*string short_lines[3][3] = {
+		{
+			"0 1 2",
+			"1 2 0",
+			"2 0 1"
+		},{
+			"3 4 5",
+			"4 5 3",
+			"5 3 4"
+		},{
+			"6 7 8",
+			"7 8 6",
+			"8 6 7"
+		}
+	};
+	string lines[9] = {
+		short_lines[0][0] + " " + short_lines[1][0] + " " + short_lines[2][0] + "\n",
+		short_lines[1][0] + " " + short_lines[2][0] + " " + short_lines[0][0] + "\n",
+		short_lines[2][0] + " " + short_lines[0][0] + " " + short_lines[1][0] + "\n",
+
+		short_lines[0][1] + " " + short_lines[1][1] + " " + short_lines[2][1] + "\n",
+		short_lines[1][1] + " " + short_lines[2][1] + " " + short_lines[0][1] + "\n",
+		short_lines[2][1] + " " + short_lines[0][1] + " " + short_lines[1][1] + "\n",
+
+		short_lines[0][2] + " " + short_lines[1][2] + " " + short_lines[2][2] + "\n",
+		short_lines[1][2] + " " + short_lines[2][2] + " " + short_lines[0][2] + "\n",
+		short_lines[2][2] + " " + short_lines[0][2] + " " + short_lines[1][2] + "\n"
+	};
+	string line_code[3] = {
+		"012",
+		"345",
+		"678"
+	};
+
+	string get_temp();*/
+
 	string line[9][3]; // line[block][row]
 	const string line1_position_code = "012"; // not change
-	string line2_position_code = "012"; // 3! = 6 types
-	string line3_position_code = "012"; // 3! = 6 types
+	string line2_position_code = "345"; // 3! = 6 types
+	string line3_position_code = "678"; // 3! = 6 types
 
 	Templet();
 	void fill_line(const string linetemp[], const string code, const int blockbegin);
@@ -32,10 +68,11 @@ public:
 class Template_sudoku {
 public:
 	string code = "312456789";
+	
 	Templet* templet = new Templet();
 
 	bool change2next();
-	void record(FILE* fout);
+	void record(FILE* fout, int* index, char buffer[]);
 };
 
 int create_sudoku(int number);
