@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#define SIZE 9
 
 using namespace std;
 #ifndef __TEXT_H__
@@ -95,6 +96,7 @@ public:
 	Box* get_minpos_box() const;
 	void initial();
 	void show(FILE* fout);
+	string to_string();
 };
 
 class Box {
@@ -116,7 +118,8 @@ class Group {
 public:
 	int		number;
 	int		hasvalues = 0;	// --- a binary number
-	vector<Box*>	members;
+	Box*	members[SIZE];
+	int		members_num = 0;
 
 	Group(int number, int has = 0);
 	void make_certain(Box* box);
@@ -130,6 +133,7 @@ int get_valuebit(Box* member);
 int get_valuebit(int value);
 bool guess_value(Box* box, Subject_sudoku* sudoku, FILE* fout);
 bool fill_sudoku(Subject_sudoku* sudoku, FILE* fout);
+bool fill_sudoku(Subject_sudoku* sudoku);
 int solve_sudoku(FILE* subject);
 
 #endif
