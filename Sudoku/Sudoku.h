@@ -92,6 +92,7 @@ public:
 
 	Subject_sudoku(string sudoku_str);
 	Subject_sudoku(const Subject_sudoku& sudoku);
+	~Subject_sudoku();
 	Box* getbox(int rowno, int columnno) const;
 	Box* get_minpos_box() const;
 	void initial();
