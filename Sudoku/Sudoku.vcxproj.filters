@@ -27,12 +27,18 @@
     <ClInclude Include="Sudoku.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="puzzle_creator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Sudoku.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="puzzle_creator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

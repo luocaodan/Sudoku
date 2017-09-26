@@ -16,42 +16,6 @@ int main(int argc, char* argv[]);
 
 class Templet {
 public:
-	/*string short_lines[3][3] = {
-		{
-			"0 1 2",
-			"1 2 0",
-			"2 0 1"
-		},{
-			"3 4 5",
-			"4 5 3",
-			"5 3 4"
-		},{
-			"6 7 8",
-			"7 8 6",
-			"8 6 7"
-		}
-	};
-	string lines[9] = {
-		short_lines[0][0] + " " + short_lines[1][0] + " " + short_lines[2][0] + "\n",
-		short_lines[1][0] + " " + short_lines[2][0] + " " + short_lines[0][0] + "\n",
-		short_lines[2][0] + " " + short_lines[0][0] + " " + short_lines[1][0] + "\n",
-
-		short_lines[0][1] + " " + short_lines[1][1] + " " + short_lines[2][1] + "\n",
-		short_lines[1][1] + " " + short_lines[2][1] + " " + short_lines[0][1] + "\n",
-		short_lines[2][1] + " " + short_lines[0][1] + " " + short_lines[1][1] + "\n",
-
-		short_lines[0][2] + " " + short_lines[1][2] + " " + short_lines[2][2] + "\n",
-		short_lines[1][2] + " " + short_lines[2][2] + " " + short_lines[0][2] + "\n",
-		short_lines[2][2] + " " + short_lines[0][2] + " " + short_lines[1][2] + "\n"
-	};
-	string line_code[3] = {
-		"012",
-		"345",
-		"678"
-	};
-
-	string get_temp();*/
-
 	string line[9][3]; // line[block][row]
 	const string line1_position_code = "012"; // not change
 	string line2_position_code = "345"; // 3! = 6 types
@@ -112,18 +76,21 @@ public:
 	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int value);
 	Box(Subject_sudoku* sdk, Group* r, Group* c, Group* b, int pos, int cer);
 	bool iscertain();
-	void make_certain(int value);
+	int make_certain(int value, int members_posvalues[3][9]);
+	void cancel_certain(int posvalue, int members_posvalues[3][9]);
 };
 
 class Group {
 public:
-	int		number;
-	int		hasvalues = 0;	// --- a binary number
+	int		number;						// --- which group?
+	int		hasvalues = 0;				// --- a binary number
 	Box*	members[SIZE];
-	int		members_num = 0;
+	int		members_posvalues[SIZE];	// --- store members' posvalue (in case of cancel_certain)
+	int		members_num = 0;			// --- only when store members 
 
 	Group(int number, int has = 0);
 	void make_certain(Box* box);
+	void cancel_certain(Box* box);
 	void push_back(Box* new_member);
 	void initial();
 	void refresh_pos();
