@@ -1,0 +1,17 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build_job
+  stage: build
+  script:
+    - msbuild Sudoku.sln -p:PlatformToolset=v140 -p:WindowsTargetPlatformVersion= -p:Configuration=Release
+
+test_job
+  stage: test
+  script:
+    - cd x64
+    - Sudoku -c abc
+  dependencies:
+    - build_job
