@@ -1,21 +1,43 @@
+variables:
+  UNIT_TEST_FOLDER: '.\SudokuTest\'
 stages:
   - build
+  - unit test
   - test
-  - deploy
 
 build_job:
-  tags: 
+  tags:
     - MSBuild
   stage: build
   script:
-    - msbuild Sudoku.sln -p:PlatformToolset=v140 -p:WindowsTargetPlatformVersion= -p:Configuration=Release
+    - msbuild -p:PlatformToolset=v141 -p:WindowsTargetPlatformVersion= -p:Configuration=Release
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - '.\x64\Release\Sudoku.exe'
+
+
+# 编译静态链接库用于单元测试
+unit_test_job:
+  tags: 
+    - MSBuild
+  stage: unit test
+  script:
+    - cd Sudoku
+    - msbuild -p:PlatformToolset=v141 -p:WindowsTargetPlatformVersion= -p:Configuration=Release -p:ConfigurationType=StaticLibrary
+    - cd ..
+    - cd "$UNIT_TEST_FOLDER"
+    - msbuild -p:PlatformToolset=v141 -p:WindowsTargetPlatformVersion= -p:Configuration=Release -p:ConfigurationType=DynamicLibrary
+    - cd Release
+    - vstest.console SudokuTest.dll
 
 test_job:
   tags:
     - MSBuild
   stage: test
   script:
-    - cd x64
-    - Sudoku -c abc
+    - mkdir bin
+    - mv .\x64\Release\Sudoku.exe bin\
+    - SudokuAutoTest -number "$GITLAB_USER_LOGIN"
   dependencies:
     - build_job
