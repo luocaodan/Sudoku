@@ -17,13 +17,13 @@ build_job:
       - '.\x64\Release\Sudoku.exe'
 
 
-# 编译静态链接库用于单元测试
 unit_test_job:
   tags: 
     - MSBuild
   stage: unit test
   script:
     - cd Sudoku
+    # 编译静态链接库用于单元测试
     - msbuild -p:PlatformToolset=v141 -p:WindowsTargetPlatformVersion= -p:Configuration=Release -p:ConfigurationType=StaticLibrary
     - cd ..
     - cd "$UNIT_TEST_FOLDER"
