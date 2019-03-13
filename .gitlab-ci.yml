@@ -5,6 +5,8 @@ stages:
   - unit test
   - test
 
+before_script:
+  - chcp 65001
 build_job:
   tags:
     - MSBuild
