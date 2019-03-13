@@ -1,5 +1,6 @@
 variables:
-  UNIT_TEST_FOLDER: ".\SudokuTest\"
+  UNIT_TEST_FOLDER: "SudokuTest"
+
 stages:
   - build
   - unit test
