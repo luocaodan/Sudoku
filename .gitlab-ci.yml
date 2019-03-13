@@ -41,7 +41,7 @@ test_job:
   stage: test
   script:
     - mkdir bin
-    - mv .\x64\Release\Sudoku.exe bin\
+    - move .\x64\Release\Sudoku.exe bin\
     - SudokuAutoTest -number "$GITLAB_USER_LOGIN"
   dependencies:
     - build_job
