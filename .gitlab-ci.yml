@@ -2,7 +2,7 @@ variables:
   PROJECT_NAME: 'Sudoku'
   UNIT_TEST_NAME: 'SudokuTest'
   PWD: $CI_PROJECT_DIR
-  OUTPUT: "%PWD%\\bin"
+  OUTPUT: $PWD\bin
 
 stages:
   - build
