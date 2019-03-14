@@ -34,7 +34,7 @@ unit_test_job:
     - msbuild -p:OutDir=%OUTPUT%;PlatformToolset=v141;WindowsTargetPlatformVersion=10.0.17134.0;Configuration=Release;ConfigurationType=StaticLibrary
     - cd ..
     - cd %UNIT_TEST_NAME%
-    - msbuild -p:OutDir=%PWD%;PlatformToolset=v141;WindowsTargetPlatformVersion=10.0.17134.0;Configuration=Release;ConfigurationType=DynamicLibrary
+    - msbuild -p:OutDir=%OUTPUT%;PlatformToolset=v141;WindowsTargetPlatformVersion=10.0.17134.0;Configuration=Release;ConfigurationType=DynamicLibrary
     - cd %OUTPUT%
     - vstest.console %UNIT_TEST_NAME%.dll
 
