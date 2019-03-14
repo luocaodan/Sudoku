@@ -11,6 +11,7 @@ stages:
 
 before_script:
   - chcp 65001
+
 build_job:
   tags:
     - MSBuild
@@ -22,7 +23,7 @@ build_job:
   artifacts:
     expire_in: 1 week
     paths:
-      - '$env:OUTPUT\$env:PROJECT_NAME.exe'
+      - "%OUTPUT%\\%PROJECT_NAME%.exe"
 
 
 unit_test_job:
