@@ -1,18 +1,15 @@
 variables:
-  PROJECT_NAME: 'Sudoku'
+  PROJECT_NAME: $CI_PROJECT_NAME
   UNIT_TEST_NAME: 'SudokuTest'
   PWD: $CI_PROJECT_DIR
   OUTPUT: $CI_PROJECT_DIR\bin
 
 stages:
   - build
-  - unit test
   - test
 
 before_script:
   - chcp 65001
-  - echo %PWD%
-  - echo %OUTPUT%
 
 build_job:
   tags:
@@ -29,7 +26,7 @@ build_job:
 unit_test_job:
   tags: 
     - MSBuild
-  stage: unit test
+  stage: test
   script:
     - cd %PROJECT_NAME%
     # 编译静态链接库用于单元测试
