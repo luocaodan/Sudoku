@@ -1,8 +1,8 @@
 variables:
   PROJECT_NAME: "Sudoku"
   UNIT_TEST_NAME: "SudokuTest"
-  PWD: %CI_PROJECT_DIR%
-  OUTPUT: %PWD%\bin
+  PWD: "%CI_PROJECT_DIR%"
+  OUTPUT: "%PWD%\bin"
 
 stages:
   - build
@@ -20,7 +20,7 @@ build_job:
   artifacts:
     expire_in: 1 week
     paths:
-      - %OUTPUT%\%PROJECT_NAME%.exe
+      - "%OUTPUT%\\%PROJECT_NAME%.exe"
 
 
 unit_test_job:
@@ -42,6 +42,6 @@ test_job:
     - MSBuild
   stage: test
   script:
-    - SudokuAutoTest -number "$GITLAB_USER_LOGIN"
+    - SudokuAutoTest -number %GITLAB_USER_LOGIN%
   dependencies:
     - build_job
