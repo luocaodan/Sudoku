@@ -2,7 +2,8 @@ variables:
   PROJECT_NAME: 'Sudoku'
   UNIT_TEST_NAME: 'SudokuTest'
   PWD: $CI_PROJECT_DIR
-  OUTPUT: $CI_PROJECT_DIR\bin
+  # OUTPUT: $CI_PROJECT_DIR\bin
+  OUTPUT: "%PWD%\\bin"
 
 stages:
   - build
@@ -11,8 +12,8 @@ stages:
 
 before_script:
   - chcp 65001
-  - echo $GITLAB_USER_LOGIN
-  - echo %GITLAB_USER_LOGIN%
+  - echo %PWD%
+  - echo %OUTPUT%
 
 build_job:
   tags:
@@ -45,6 +46,6 @@ test_job:
     - MSBuild
   stage: test
   script:
-    - SudokuAutoTest -number $GITLAB_USER_LOGIN
+    - SudokuAutoTest -number %GITLAB_USER_LOGIN%
   dependencies:
     - build_job
