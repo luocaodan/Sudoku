@@ -11,6 +11,8 @@ stages:
 
 before_script:
   - chcp 65001
+  - echo $GITLAB_USER_LOGIN
+  - echo %GITLAB_USER_LOGIN%
 
 build_job:
   tags:
