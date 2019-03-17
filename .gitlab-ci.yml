@@ -70,7 +70,7 @@ report_end_job:
   script:
     - AutoTestReport -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
   when: always
-  retry:  3
+  retry:  2
   dependencies:
     - unit_test_job
     - test_job
