@@ -61,14 +61,14 @@ report_start_job:
     - MSBuild
   stage: report_start
   script:
-    - AutoTestReport -s
+    - AutoTestReport -s -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
 
 report_end_job:
   tags:
     - MSBuild
   stage: report_end
   script:
-    - AutoTestReport -f score.json -u unittest.trx
+    - AutoTestReport -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
   when: always
   retry:  3
   dependencies:
