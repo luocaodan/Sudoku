@@ -69,6 +69,7 @@ report_end_job:
   stage: report_end
   script:
     - AutoTestReport -f score.json -u unittest.trx
+  when: always
   retry:  3
   dependencies:
     - unit_test_job
