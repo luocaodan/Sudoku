@@ -5,8 +5,10 @@ variables:
   OUTPUT: $CI_PROJECT_DIR\bin
 
 stages:
+  - report_start
   - build
   - test
+  - report_end
 
 before_script:
   - chcp 65001
@@ -45,3 +47,25 @@ test_job:
     - SudokuAutoTest -number %GITLAB_USER_LOGIN%
   dependencies:
     - build_job
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - score.json
+
+report_start_job:
+  tags:
+    - MSBuild
+  stage: report_start
+  script:
+    - AutoTestReport -s
+
+report_end_job:
+  tags:
+    - MSBuild
+  stage: report_end
+  script:
+    - AutoTestReport -f score.json -u unittest.trx
+  retry:  3
+  dependencies:
+    - unit_test_job
+    - test_job
