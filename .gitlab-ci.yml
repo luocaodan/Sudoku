@@ -58,14 +58,14 @@ test_job:
 
 report_start_job:
   tags:
-    - MSBuild
+    - Build Server
   stage: report_start
   script:
-    - AutoTestReport -s -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
+    - AutoTestReport -s -p %CI_PROJECT_ID%
 
 report_end_job:
   tags:
-    - MSBuild
+    - Build Server
   stage: report_end
   script:
     - AutoTestReport -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
