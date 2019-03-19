@@ -61,7 +61,7 @@ report_start_job:
     - Build Server
   stage: report_start
   script:
-    - AutoTestReport -s -p %CI_PROJECT_ID%
+    - AutoTestReport -s -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
 
 report_end_job:
   tags:
