@@ -5,10 +5,9 @@ variables:
   OUTPUT: $CI_PROJECT_DIR\bin
 
 stages:
-  - report_start
   - build
   - test
-  - report_end
+  - report
 
 before_script:
   - chcp 65001
@@ -56,19 +55,12 @@ test_job:
     paths:
       - score.json
 
-report_start_job:
+report_job:
   tags:
     - Build Server
-  stage: report_start
+  stage: report
   script:
-    - AutoTestReport -s -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
-
-report_end_job:
-  tags:
-    - Build Server
-  stage: report_end
-  script:
-    - AutoTestReport -p %CI_PROJECT_ID% -n %GITLAB_USER_LOGIN%
+    - AutoTestReport -p %CI_PROJECT_ID%
   when: always
   retry:  2
   dependencies:
